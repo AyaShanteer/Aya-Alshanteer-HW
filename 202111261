@@ -1,0 +1,109 @@
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+
+// Function to perform Selection Sort and count comparisons
+int selectionSort(std::vector<int>& arr) {
+    int comparisons = 0;
+    int n = arr.size();
+    for (int i = 0; i < n - 1; ++i) {
+        int minIndex = i;
+        for (int j = i + 1; j < n; ++j) {
+            ++comparisons;
+            if (arr[j] < arr[minIndex]) {
+                minIndex = j;
+            }
+        }
+        std::swap(arr[i], arr[minIndex]);
+    }
+    return comparisons;
+}
+
+// Function to perform Insertion Sort and count comparisons
+int insertionSort(std::vector<int>& arr) {
+    int comparisons = 0;
+    int n = arr.size();
+    for (int i = 1; i < n; ++i) {
+        int key = arr[i];
+        int j = i - 1;
+        ++comparisons;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            --j;
+            ++comparisons;
+        }
+        arr[j + 1] = key;
+    }
+    return comparisons;
+}
+
+// Function to perform Quicksort and count comparisons
+int partition(std::vector<int>& arr, int low, int high, int& comparisons) {
+    int pivot = arr[high];
+    int i = low - 1;
+    for (int j = low; j <= high - 1; ++j) {
+        ++comparisons;
+        if (arr[j] < pivot) {
+            ++i;
+            std::swap(arr[i], arr[j]);
+        }
+    }
+    std::swap(arr[i + 1], arr[high]);
+    return i + 1;
+}
+
+void quickSortUtil(std::vector<int>& arr, int low, int high, int& comparisons) {
+    if (low < high) {
+        int pi = partition(arr, low, high, comparisons);
+        quickSortUtil(arr, low, pi - 1, comparisons);
+        quickSortUtil(arr, pi + 1, high, comparisons);
+    }
+}
+
+int quickSort(std::vector<int>& arr) {
+    int comparisons = 0;
+    int n = arr.size();
+    quickSortUtil(arr, 0, n - 1, comparisons);
+    return comparisons;
+}
+
+int main() {
+    // Seed random number generator
+    srand(time(0));
+
+    // Generate 10 sets of 1000 random integer values
+    const int sets = 10;
+    const int size = 1000;
+    std::vector<std::vector<int>> randomSets(sets, std::vector<int>(size));
+
+    for (int i = 0; i < sets; ++i) {
+        for (int j = 0; j < size; ++j) {
+            randomSets[i][j] = rand() % 10000 + 1; // Values between 1 and 10000
+        }
+    }
+
+    // Perform sorting and counting comparisons for each set
+    std::vector<int> comparisonsSelection(sets);
+    std::vector<int> comparisonsInsertion(sets);
+    std::vector<int> comparisonsQuick(sets);
+
+    for (int i = 0; i < sets; ++i) {
+        comparisonsSelection[i] = selectionSort(randomSets[i]);
+        comparisonsInsertion[i] = insertionSort(randomSets[i]);
+        std::vector<int> quickSet = randomSets[i];
+        comparisonsQuick[i] = quickSort(quickSet);
+    }
+
+    // Display the results for each set
+    std::cout << "Comparison Counts for Each Set:\n";
+
+    for (int i = 0; i < sets; ++i) {
+        std::cout << "Set " << i + 1 << ":\n";
+        std::cout << "Selection Sort: " << comparisonsSelection[i] << " comparisons\n";
+        std::cout << "Insertion Sort: " << comparisonsInsertion[i] << " comparisons\n";
+        std::cout << "Quicksort: " << comparisonsQuick[i] << " comparisons\n\n";
+    }
+
+    return 0;
+}
